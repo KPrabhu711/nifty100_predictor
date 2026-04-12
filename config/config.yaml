@@ -1,0 +1,127 @@
+universe:
+  name: NIFTY100
+  n_stocks: 100
+data:
+  raw_dir: data/raw
+  processed_dir: data/processed
+  universe_file: data/universe.csv
+  start_date: '2015-01-01'
+  end_date: '2024-12-31'
+  price_col: Adj Close
+features:
+  lookback: 128
+  target_horizons:
+  - 1
+  - 5
+  - 10
+  primary_target: 5
+  direction_label_mode: ternary_quantile_cs
+  direction_target_source: raw
+  direction_threshold: 0.005
+  direction_quantile: 0.3
+  winsorize_pct: 0.01
+  momentum_windows:
+  - 5
+  - 10
+  - 20
+  - 60
+  vol_windows:
+  - 5
+  - 10
+  - 20
+model:
+  embedding_dim: 128
+  patch_sizes:
+  - 8
+  - 16
+  - 32
+  patch_strides:
+  - 4
+  - 8
+  - 16
+  n_transformer_layers: 4
+  n_attention_heads: 4
+  dropout: 0.15
+  pooling: attention_last
+  graph_layers: 2
+  graph_hidden_dim: 128
+  relation_types:
+  - sector
+  - rolling_corr
+  - emb_similarity
+  corr_window: 40
+  corr_threshold: 0.4
+  emb_sim_threshold: 0.5
+  regime_dim: 8
+  direction_n_classes: 3
+training:
+  pretrain_epochs: 30
+  pretrain_mask_ratio: 0.4
+  pretrain_lr: 0.0003
+  pretrain_batch_size: 32
+  supervised_epochs: 50
+  supervised_lr: 0.0001
+  weight_decay: 0.0001
+  batch_dates: 8
+  fp16: true
+  gradient_checkpointing: true
+  recency_weighting: true
+  recency_half_life_days: 252
+  early_stopping_patience: 10
+  early_stopping_metric: score_rank_ic
+loss:
+  lambda_reg: 1.0
+  lambda_rank: 0.75
+  lambda_dir: 0.02
+  huber_delta: 0.01
+  ranking_loss_type: logistic
+  ranking_margin: 0.05
+  ranking_pair_epsilon: 0.0001
+  focal_gamma: 1.0
+  focal_alpha:
+  - 1.0
+  - 1.0
+  - 1.0
+  auto_class_weights: true
+  class_weight_clip_min: 0.5
+  class_weight_clip_max: 3.0
+walkforward:
+  train_years: 5
+  val_years: 1
+  test_years: 1
+  step_months: 6
+evaluation:
+  top_k: 10
+  long_short: true
+  transaction_cost_bps: 10
+  portfolio_score_col: alpha_score
+  aggregate_overlap_policy: latest_fold
+  rebalance_frequency: W-FRI
+  score_ema_alpha: 0.2
+  alpha_search_enabled: true
+  alpha_use_zscore: true
+  alpha_direction_component: up_minus_down
+  alpha_weight_candidates:
+  - [1.0, 0.0, 0.0]
+  - [0.0, 1.0, 0.0]
+  - [0.7, 0.3, 0.0]
+  - [0.5, 0.5, 0.0]
+  - [0.3, 0.7, 0.0]
+  - [0.8, 0.1, 0.1]
+  - [0.7, 0.2, 0.1]
+  - [0.6, 0.3, 0.1]
+  - [0.5, 0.4, 0.1]
+  - [0.4, 0.5, 0.1]
+  - [0.3, 0.6, 0.1]
+  - [0.2, 0.7, 0.1]
+  - [0.75, 0.0, 0.25]
+  - [0.0, 0.75, 0.25]
+  - [0.45, 0.45, 0.10]
+logging:
+  use_wandb: false
+  project_name: nifty100_patchtst
+  log_every_n_steps: 10
+  results_dir: results
+  checkpoint_dir: results/checkpoints
+  plots_dir: results/plots
+  metrics_dir: results/metrics

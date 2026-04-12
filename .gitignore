@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Testing / tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.env
+.python-version
+
+# IDE / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Experiment tracking / logs
+wandb/
+logs/
+*.log
+
+# Local data artifacts
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Training / evaluation artifacts
+results/checkpoints/*
+!results/checkpoints/.gitkeep
+results/metrics/*
+!results/metrics/.gitkeep
+results/plots/*
+!results/plots/.gitkeep
+
+# Accidental nested outputs
+scripts/results/

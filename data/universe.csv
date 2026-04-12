@@ -1,0 +1,100 @@
+ticker,company,sector
+RELIANCE.NS,Reliance Industries,Energy
+TCS.NS,Tata Consultancy Services,IT
+HDFCBANK.NS,HDFC Bank,Banks
+BHARTIARTL.NS,Bharti Airtel,Telecom
+ICICIBANK.NS,ICICI Bank,Banks
+INFOSYS.NS,Infosys,IT
+SBIN.NS,State Bank of India,Banks
+HINDUNILVR.NS,Hindustan Unilever,FMCG
+ITC.NS,ITC,FMCG
+KOTAKBANK.NS,Kotak Mahindra Bank,Banks
+LT.NS,Larsen and Toubro,Capital_Goods
+AXISBANK.NS,Axis Bank,Banks
+BAJFINANCE.NS,Bajaj Finance,Banks
+MARUTI.NS,Maruti Suzuki,Auto
+HCLTECH.NS,HCL Technologies,IT
+ASIANPAINT.NS,Asian Paints,Consumer_Durables
+ONGC.NS,Oil and Natural Gas Corporation,Energy
+NTPC.NS,NTPC,Energy
+SUNPHARMA.NS,Sun Pharmaceutical,Pharma
+ULTRACEMCO.NS,UltraTech Cement,Cement
+ADANIENT.NS,Adani Enterprises,Energy
+ADANIPORTS.NS,Adani Ports,Capital_Goods
+WIPRO.NS,Wipro,IT
+POWERGRID.NS,Power Grid Corporation,Energy
+TATAMOTORS.NS,Tata Motors,Auto
+TATASTEEL.NS,Tata Steel,Metals
+COALINDIA.NS,Coal India,Energy
+BAJAJFINSV.NS,Bajaj Finserv,Insurance
+NESTLEIND.NS,Nestle India,FMCG
+TITAN.NS,Titan Company,Consumer_Durables
+JSWSTEEL.NS,JSW Steel,Metals
+BRITANNIA.NS,Britannia Industries,FMCG
+GRASIM.NS,Grasim Industries,Cement
+HINDALCO.NS,Hindalco Industries,Metals
+M&M.NS,Mahindra and Mahindra,Auto
+CIPLA.NS,Cipla,Pharma
+DRREDDY.NS,Dr Reddys Laboratories,Pharma
+APOLLOHOSP.NS,Apollo Hospitals,Pharma
+BAJAJ-AUTO.NS,Bajaj Auto,Auto
+EICHERMOT.NS,Eicher Motors,Auto
+INDUSINDBK.NS,IndusInd Bank,Banks
+HEROMOTOCO.NS,Hero MotoCorp,Auto
+BPCL.NS,Bharat Petroleum,Energy
+TECHM.NS,Tech Mahindra,IT
+DIVISLAB.NS,Divis Laboratories,Pharma
+LTIM.NS,LTIMindtree,IT
+DABUR.NS,Dabur India,FMCG
+HAVELLS.NS,Havells India,Consumer_Durables
+MARICO.NS,Marico,FMCG
+MUTHOOTFIN.NS,Muthoot Finance,Banks
+PIDILITIND.NS,Pidilite Industries,Chemicals
+SRF.NS,SRF,Chemicals
+TORNTPHARM.NS,Torrent Pharmaceuticals,Pharma
+TATACONSUM.NS,Tata Consumer Products,FMCG
+BERGEPAINT.NS,Berger Paints,Consumer_Durables
+CHOLAFIN.NS,Cholamandalam Investment,Banks
+COLPAL.NS,Colgate Palmolive India,FMCG
+DMART.NS,Avenue Supermarts,FMCG
+GODREJCP.NS,Godrej Consumer Products,FMCG
+HDFCLIFE.NS,HDFC Life Insurance,Insurance
+ICICIPRULI.NS,ICICI Prudential Life,Insurance
+ICICIGI.NS,ICICI Lombard General Insurance,Insurance
+INDIGO.NS,InterGlobe Aviation,Aviation
+LTTS.NS,Larsen and Toubro Technology Services,IT
+LUPIN.NS,Lupin,Pharma
+MCDOWELL-N.NS,United Spirits,FMCG
+MOTHERSON.NS,Samvardhana Motherson,Auto
+NAUKRI.NS,Info Edge India,IT
+OBEROIRLTY.NS,Oberoi Realty,Real_Estate
+OFSS.NS,Oracle Financial Services Software,IT
+PAGEIND.NS,Page Industries,Consumer_Durables
+PEL.NS,Piramal Enterprises,Chemicals
+PNB.NS,Punjab National Bank,Banks
+POLYCAB.NS,Polycab India,Consumer_Durables
+RECLTD.NS,REC,Energy
+SIEMENS.NS,Siemens India,Capital_Goods
+TATAPOWER.NS,Tata Power,Energy
+TRENT.NS,Trent,Consumer_Durables
+TVSMOTOR.NS,TVS Motor Company,Auto
+UBL.NS,United Breweries,FMCG
+VEDL.NS,Vedanta,Metals
+VOLTAS.NS,Voltas,Consumer_Durables
+WHIRLPOOL.NS,Whirlpool of India,Consumer_Durables
+ZOMATO.NS,Zomato,Consumer_Durables
+BANKBARODA.NS,Bank of Baroda,Banks
+CANBK.NS,Canara Bank,Banks
+GAIL.NS,GAIL India,Energy
+GODREJPROP.NS,Godrej Properties,Real_Estate
+INDHOTEL.NS,Indian Hotels Company,Consumer_Durables
+INDUSTOWER.NS,Indus Towers,Telecom
+IOC.NS,Indian Oil Corporation,Energy
+IRCTC.NS,Indian Railway Catering and Tourism Corporation,Capital_Goods
+JSWENERGY.NS,JSW Energy,Energy
+LICI.NS,Life Insurance Corporation of India,Insurance
+NHPC.NS,NHPC,Energy
+NMDC.NS,NMDC,Metals
+OIL.NS,Oil India,Energy
+PRESTIGE.NS,Prestige Estates Projects,Real_Estate
+SHREECEM.NS,Shree Cement,Cement
