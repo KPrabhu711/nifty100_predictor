@@ -1,0 +1,268 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+\graphicspath{{../results/plots/}}
+
+\title{Portfolio-Aligned PatchTST with Dynamic Relational Graphs for Cross-Sectional Return Forecasting in the NIFTY 100}
+
+\author{%
+\IEEEauthorblockN{Anonymous Author(s) for Draft Review}
+\IEEEauthorblockA{Institution withheld in this draft version}
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This paper presents a relation-aware return forecasting framework for the NIFTY 100 that combines a multi-scale PatchTST temporal encoder with static and dynamic graph attention, regime conditioning, and portfolio-aligned multi-task learning. The model is designed for cross-sectional stock selection rather than raw price forecasting. Each stock is represented by a 128-day history of engineered market features, encoded by a three-branch PatchTST backbone, refined through sector, rolling-correlation, and embedding-similarity graphs, and optimized jointly for residual return regression, cross-sectional ranking, and directional classification. We evaluate the system with a strict walk-forward protocol over 2015--2024 using transaction costs, overlap-safe aggregation, and post-run significance and robustness analysis. Under the configured portfolio score used in the final saved run, the model achieves an information coefficient of 0.0189, a rank information coefficient of 0.0140, 57.9\% annualized return, and a Sharpe ratio of 1.49 at 10 basis points transaction cost. A fixed-score robustness sweep further shows that direct ranking-head execution can reach 90.9\% annualized return with a Sharpe ratio of 2.05 on the same saved predictions. HAC-adjusted significance testing yields a positive daily IC mean with $p=0.044$ and a positive score-based rank IC with borderline significance. The results support the viability of PatchTST-plus-graph architectures for Indian large-cap cross-sectional forecasting, but the observed drawdown and turnover indicate that the present system should be interpreted as a research forecasting framework rather than a production-ready alpha engine.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Stock return forecasting, PatchTST, graph attention networks, cross-sectional ranking, portfolio construction, NIFTY 100
+\end{IEEEkeywords}
+
+\section{Introduction}
+Cross-sectional equity forecasting remains difficult because financial labels are noisy, market regimes shift over time, and stock-level signals interact strongly with sector and market structure. In practice, a useful forecasting model must do more than minimize one-step prediction error: it must produce stable cross-sectional scores that survive transaction costs and remain useful for portfolio construction.
+
+Recent work in stock prediction has moved from single-asset time-series models toward joint temporal-relational architectures that encode both stock-specific behavior and inter-stock dependencies. Temporal Relational Ranking (RSR) introduced ranking-aware relation modeling for equities \cite{feng2019temporal}. MASTER later showed that transformer-style stock encoders with market-guided feature selection can improve cross-sectional signal quality \cite{li2024master}. In parallel, PatchTST demonstrated that patching is a strong and efficient representation strategy for long-horizon time-series modeling \cite{nie2023patchtst}. These ideas motivate a natural design for the NIFTY 100: use PatchTST to summarize per-stock temporal structure and then refine those embeddings through graph-based cross-stock reasoning.
+
+This work implements such a system for the NIFTY 100 universe and evaluates it in a walk-forward setting. The emphasis is on realistic research evaluation rather than headline model complexity. In particular, we optimize for residual return regression and cross-sectional ranking, evaluate under explicit transaction costs, and report significance and robustness diagnostics in addition to raw backtest outcomes.
+
+The main contributions of this draft are:
+\begin{enumerate}
+    \item an end-to-end PatchTST plus multi-relational graph pipeline tailored to the NIFTY 100;
+    \item a portfolio-aware training and evaluation pipeline with walk-forward testing, overlap-safe aggregation, and robustness reporting;
+    \item empirical evidence that the resulting system extracts positive cross-sectional alpha from Indian large-cap equities, with positive IC, positive Rank IC, and risk-adjusted out-of-sample portfolio performance above a simple research threshold.
+\end{enumerate}
+
+\section{Related Work}
+Classical deep stock prediction systems often formulate the task as price or direction forecasting and ignore cross-stock structure. RSR explicitly reframed the problem as stock ranking with temporal relation modeling and reported strong return ratios on US markets \cite{feng2019temporal}. MASTER further improved stock transformers by modeling cross-time inter-stock interactions and market-guided feature selection, reporting materially stronger IC and Rank IC on Chinese universes \cite{li2024master}. PatchTST itself was proposed for general long-horizon time-series forecasting, where patch tokens and masked pretraining yielded strong forecasting performance and efficient transformer scaling \cite{nie2023patchtst}.
+
+Beyond transformer-style models, listwise learning-to-rank methods have also been used for long-short portfolio construction. Zhang \emph{et al.} report out-of-sample annual return of 38\% and Sharpe ratio of 2.0 for a listwise stock ranking framework on Chinese A-shares \cite{zhang2022listwise}. More recently, Gorduza \emph{et al.} used analyst coverage networks with graph attention and reported 29.44\% annualized return and 4.06 Sharpe on US equities \cite{gorduza2024analyst}. These studies motivate two conclusions that shape our design: first, portfolio utility is fundamentally a ranking problem; second, structured relations between stocks can provide useful alpha.
+
+Table~\ref{tab:related_comparison} contextualizes our result against representative published systems. The comparison should be interpreted cautiously: markets, universes, rebalance rules, and transaction-cost assumptions differ. Nevertheless, the table shows that our system is competitive with mid-tier applied finance papers on raw portfolio return and weaker than the strongest recent signal-centric transformer benchmark.
+
+\begin{table*}[t]
+\centering
+\caption{Contextual comparison with representative published systems. Results are not perfectly comparable across markets, rebalancing schemes, and cost assumptions; they are included to position the present result relative to related literature.}
+\label{tab:related_comparison}
+\footnotesize
+\begin{tabular}{p{3.5cm}p{1.0cm}p{2.2cm}p{2.8cm}p{4.8cm}p{2.0cm}}
+\toprule
+Work & Year & Market & Model type & Reported metric(s) & Relative standing \\
+\midrule
+This work & 2026 & NIFTY 100 (97 effective names) & Multi-scale PatchTST + multi-relational GAT & Configured run: IC 0.0189, Rank IC 0.0140, 57.9\% annualized return, Sharpe 1.49; robustness best fixed score: 90.9\% annualized return, Sharpe 2.05 & --- \\
+MASTER \cite{li2024master} & 2024 & CSI300 / CSI800 & Market-guided stock transformer & CSI300: IC 0.064, Rank IC 0.076, AR 0.27, IR 2.4; CSI800: IC 0.052, Rank IC 0.066, AR 0.28, IR 2.3 & Stronger signal \\
+RSR \cite{feng2019temporal} & 2019 & NYSE / NASDAQ & Temporal relational ranking & Average return ratio 98\% / 71\% on NYSE / NASDAQ & Likely stronger, but not apples-to-apples \\
+Listwise LTR portfolio \cite{zhang2022listwise} & 2022 & China A-shares & Listwise learn-to-rank & Annual return 38\%, Sharpe 2.0 & Lower return; similar Sharpe \\
+Analyst network alpha \cite{gorduza2024analyst} & 2024 & US equities & Graph attention on analyst networks & Annual return 29.44\%, Sharpe 4.06 & Lower return; stronger Sharpe \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\section{Problem Setup}
+Let $i \in \{1, \dots, N\}$ denote a stock in the NIFTY 100 universe and let $t$ denote a trading date. For each stock, the system observes a lookback window of length $L=128$ trading days and predicts a forward 5-day residual return:
+\begin{equation}
+y^{\text{res}}_{i,t} = \log\left(\frac{P_{i,t+5}}{P_{i,t}}\right) - \log\left(\frac{M_{t+5}}{M_t}\right),
+\end{equation}
+where $P_{i,t}$ is the stock close and $M_t$ is the NIFTY 100 index level. The model also outputs a rank score and a ternary direction label. Although the original user specification targeted 99 tickers, only 97 stocks were available after data download because two Yahoo Finance symbols were unavailable during ingestion; all experiments in this paper therefore use the effective 97-name universe.
+
+\subsection{Label Construction and Leakage Control}
+The regression target is the 5-day forward residual return defined in (1). The direction target is built separately from the 5-day raw forward return using cross-sectional quantiles on each date: the bottom 30\% of stocks are labeled down, the middle 40\% are labeled flat, and the top 30\% are labeled up. This label design keeps the direction classes approximately balanced without altering the regression target.
+
+The implementation enforces several anti-leakage constraints. First, features for date $t$ use only information available up to and including $t$. Second, cross-sectional normalization is performed independently on date $t$ using only stocks available on that date; no future observations are involved. Third, graph edges built from rolling correlations use only historical returns up to date $t$. Fourth, training, validation, and testing are separated by walk-forward time blocks, and aggregate reporting de-duplicates overlapping test windows with a latest-fold policy. Finally, the configured portfolio evaluation uses a fixed top-$k$ equal-weight long-short rule, with $k=10$, weekly rebalancing, and 10 bps transaction costs.
+
+\section{Methodology}
+\subsection{Feature Engineering and Normalization}
+Each stock-day is represented by 27 engineered features derived from OHLCV history, including log return, overnight and intraday returns, rolling momentum, realized volatility, ATR-style volatility, volume surprise, moving-average distance, RSI, Bollinger-band distance, and relative return features against the market and sector. Features are winsorized and z-scored cross-sectionally within the NIFTY universe at each date.
+
+\subsection{Temporal Encoder}
+For each stock, the lookback tensor $X_{i,t} \in \mathbb{R}^{L \times F}$ is patchified at three scales with patch lengths $\{8,16,32\}$ and strides $\{4,8,16\}$. Each branch applies a linear patch projection, learnable positional embeddings, and a transformer encoder. Branch outputs are pooled with attention and fused with the final token representation, producing a stock embedding $h_i \in \mathbb{R}^{128}$.
+
+\subsection{Relational Graph Layer}
+We then build a multi-relational graph over the stock universe using: (i) a sector graph, (ii) a rolling-correlation graph, and (iii) an embedding-similarity graph. A multi-relational graph attention network (GAT) updates the stock embeddings while preserving the temporal signal via residual connections:
+\begin{equation}
+\tilde{h}_i = \text{GAT}(h_i, \mathcal{N}(i)), \qquad h_i^{\text{final}} = h_i + \tilde{h}_i.
+\end{equation}
+
+\subsection{Prediction Heads and Training Objective}
+The refined stock embedding is concatenated with regime features (VIX, market volatility, and trend descriptors) and sent to three heads:
+\begin{enumerate}
+    \item a return regression head for 5-day residual return,
+    \item a ranking head for cross-sectional stock ordering,
+    \item a ternary direction head (down/flat/up).
+\end{enumerate}
+
+The multi-task loss is:
+\begin{equation}
+\mathcal{L} = \lambda_{reg} \mathcal{L}_{\text{Huber}} + \lambda_{rank} \mathcal{L}_{\text{rank}} + \lambda_{dir} \mathcal{L}_{\text{focal}},
+\end{equation}
+with $\lambda_{reg}=1.0$, $\lambda_{rank}=0.75$, and $\lambda_{dir}=0.02$ in the final run. Ranking uses a logistic pairwise objective with a positive margin, and the direction loss uses focal loss. We also apply exponential recency weighting within each training fold:
+\begin{equation}
+\omega_{\tau} = \exp\left(-\log(2) \cdot \frac{\Delta_{\tau}}{h}\right),
+\end{equation}
+where $\Delta_{\tau}$ is the distance to the most recent training date and $h=252$ trading days is the half-life.
+
+\subsection{Execution Score}
+The repository implements an exploratory validation-tuned blended alpha score of the form recommended in the project design document. The configured run reported in this paper uses that blended score as its primary execution signal. However, a fixed-score robustness sweep on the saved predictions shows that the ranking head alone can produce a stronger post-hoc portfolio. To avoid overstating the contribution of exploratory score selection, we present the configured execution result as the primary portfolio outcome and treat the fixed rank-head result as a robustness finding.
+
+\section{Experimental Design}
+\subsection{Data and Training Protocol}
+The system uses daily NIFTY 100 constituent data from 2015-01-01 to 2024-12-31, plus NIFTY 100 index and India VIX context series. The walk-forward setup follows the design specification: 5 years train, 1 year validation, 1 year test, rolling every 6 months. This yields seven folds.
+
+We use mixed precision, gradient checkpointing, AdamW, and a 12-epoch masked patch pretraining phase for the reported run. The graph module contains two layers, and training batches are constructed over dates so that all available stocks for a date are processed jointly.
+
+\subsection{Evaluation Metrics}
+We report:
+\begin{itemize}
+    \item daily IC and Rank IC,
+    \item top--bottom spread,
+    \item top-$k$ precision,
+    \item annualized return, Sharpe, Sortino, drawdown, turnover, and hit ratio.
+\end{itemize}
+All portfolio results include 10 bps transaction cost and use weekly rebalancing unless otherwise stated. In addition, we compute HAC-adjusted significance statistics and bootstrap confidence intervals from the saved daily outputs.
+
+\section{Results}
+\subsection{Main Cross-Sectional Performance}
+The final out-of-sample signal metrics are positive and economically meaningful. Under the configured saved run, the model achieves daily IC mean 0.0189, Rank IC mean 0.0140, and score-based Rank IC 0.0156 over the aggregated walk-forward test periods. Table~\ref{tab:main_results} summarizes both the configured portfolio result and the strongest fixed-score robustness outcome on the same saved predictions.
+
+\begin{table}[t]
+\centering
+\caption{Main out-of-sample results. The left column reports the configured saved run using the portfolio score active during the final walk-forward evaluation. The right column reports the strongest fixed-score robustness result from the saved predictions, which uses the ranking head directly for execution.}
+\label{tab:main_results}
+\footnotesize
+\begin{tabular}{lrr}
+\toprule
+Metric & Configured run & Best fixed-score robustness \\
+\midrule
+IC mean & 0.0189 & 0.0189 \\
+Rank IC mean & 0.0140 & 0.0140 \\
+Score Rank IC mean & 0.0156 & 0.0140 \\
+Top--Bottom spread & 0.00236 & 0.00248 \\
+Top-$10$ precision & 0.5094 & 0.5079 \\
+Annualized return & 57.90\% & 90.93\% \\
+Sharpe ratio & 1.49 & 2.05 \\
+Sortino ratio & 2.62 & 3.75 \\
+Maximum drawdown & -64.98\% & -65.27\% \\
+Annualized turnover & 83.98 & 84.04 \\
+Hit ratio & 52.12\% & 52.12\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+At the fold level, performance is mixed but usable: four of seven folds are positive on both Sharpe and score-based Rank IC. The strongest fold reaches Sharpe 4.34, while the weakest folds remain negative. This indicates that the architecture captures real alpha, but the extracted signal is still regime-sensitive and not uniformly reliable across market regimes.
+
+\subsection{Significance}
+Table~\ref{tab:significance} reports HAC-adjusted significance estimates from the saved daily metrics. Daily IC is statistically positive at the 5\% level ($p=0.044$). Rank IC and score Rank IC are positive with borderline significance ($p\approx 0.08$), and the top--bottom spread is similarly borderline. These values are consistent with a positive but noisy financial signal rather than an overfit or deterministic predictor.
+
+\begin{table}[t]
+\centering
+\caption{Statistical significance of key daily metrics. HAC uses max lag 5.}
+\label{tab:significance}
+\footnotesize
+\begin{tabular}{lrrrr}
+\toprule
+Metric & Mean & 95\% CI & HAC $t$ & $p$-value \\
+\midrule
+IC & 0.0189 & [0.0089, 0.0289] & 2.02 & 0.0437 \\
+Rank IC & 0.0140 & [0.0038, 0.0232] & 1.61 & 0.1082 \\
+Score Rank IC & 0.0156 & [0.0053, 0.0253] & 1.75 & 0.0797 \\
+Top--Bottom spread & 0.0024 & [0.0009, 0.0039] & 1.79 & 0.0742 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Figure~\ref{fig:ic} shows the IC and Rank IC evolution across the full out-of-sample period, while Figure~\ref{fig:icdist} shows the daily IC distribution.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{ic_over_time.png}
+\caption{Daily IC and Rank IC over the aggregated out-of-sample period.}
+\label{fig:ic}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{significance_ic_distribution.png}
+\caption{Distribution of daily IC values from the final run.}
+\label{fig:icdist}
+\end{figure}
+
+\subsection{Robustness}
+Robustness analysis yields three notable conclusions. First, among fixed execution signals extracted from the saved outputs, the ranking head is strongest, reaching Sharpe 2.05 and 90.9\% annualized return. Second, the best top-$k$ choice is $k=10$ for that ranking-head portfolio. Third, the configured run remains profitable under reasonable cost stress: at 20 bps, the saved portfolio still delivers 45.2\% annualized return with a Sharpe ratio of 1.24.
+
+At the same time, robustness analysis makes the main weakness clear: drawdown remains large. Even the strongest fixed-score configuration exhibits drawdown around 65\%, and monthly rebalancing nearly destroys performance. Therefore, the current system should be interpreted as a promising research alpha extractor rather than a production-ready portfolio engine.
+
+Table~\ref{tab:robustness} summarizes the most important robustness slices from the saved outputs.
+
+\begin{table*}[t]
+\centering
+\caption{Selected robustness slices from the configured saved run. Cost sensitivity uses the configured score, top-$10$, and varying transaction costs. Rebalance sensitivity uses the configured score with different rebalance frequencies. Yearly results use the configured score and the same execution rule within each calendar year.}
+\label{tab:robustness}
+\footnotesize
+\begin{tabular}{llrrrr}
+\toprule
+Section & Setting & Ann. Return & Sharpe & Max DD & Turnover \\
+\midrule
+Cost & 0 bps & 71.71\% & 1.73 & -62.33\% & 83.98 \\
+Cost & 10 bps & 57.90\% & 1.49 & -64.98\% & 83.98 \\
+Cost & 20 bps & 45.18\% & 1.24 & -67.49\% & 83.98 \\
+\midrule
+Rebalance & Daily & 65.56\% & 1.65 & -68.44\% & 123.33 \\
+Rebalance & Weekly & 57.90\% & 1.49 & -64.98\% & 83.98 \\
+Rebalance & Monthly & -4.30\% & 0.06 & -80.32\% & 37.50 \\
+\midrule
+Year & 2021 & 89.91\% & 2.07 & -39.28\% & 69.98 \\
+Year & 2022 & 26.92\% & 0.80 & -50.41\% & 88.71 \\
+Year & 2023 & 8.12\% & 0.41 & -45.76\% & 78.08 \\
+Year & 2024 & 212.98\% & 3.54 & -29.59\% & 93.57 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Figure~\ref{fig:topk} shows the sensitivity of portfolio performance to top-$k$ choice. The ranking-head curve peaks at $k=10$, while wider portfolios reduce concentration somewhat but do not solve the drawdown problem.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{robustness_topk.png}
+\caption{Top-$k$ sensitivity from the robustness analysis.}
+\label{fig:topk}
+\end{figure}
+
+\section{Discussion}
+The results support four conclusions.
+
+First, the combination of multi-scale PatchTST and relational graph learning is effective for Indian large-cap stock selection. Positive IC, positive Rank IC, and positive top-$k$ precision indicate that the model is extracting usable cross-sectional information.
+
+Second, the system is stronger as a ranking engine than as a direction classifier. The ternary direction head remains weak and does not justify a strong classification-centric claim; in the saved run it does not materially outperform a simple majority-class reference. This suggests that the direction loss is best treated as auxiliary regularization rather than a primary research endpoint.
+
+Third, portfolio-aware evaluation materially changes the interpretation of model quality. The robustness study shows that the strongest fixed execution score is not the same as the configured blended score used in the final run. This underlines the importance of separating head-level forecasting quality from execution-layer design and of reporting both configured and robustness-best settings clearly.
+
+Fourth, the major practical limitation is not raw signal strength but risk concentration. The model can generate attractive returns, but those returns come with high turnover and high drawdown. A drawdown around 65\% is a serious practical red flag. Any future deployment-oriented version would need explicit drawdown control such as volatility targeting, score-thresholded exposure, sector and beta neutrality, position caps, and stronger turnover regularization.
+
+\section{Limitations and Future Work}
+This draft has several limitations that must be addressed before journal-grade submission:
+\begin{enumerate}
+    \item no full baseline suite (linear, tree-based, PatchTST-only, graph ablations) is reported yet;
+    \item portfolio drawdown remains too high for a convincing deployment story;
+    \item the direction head underperforms and should either be redesigned or down-weighted further;
+    \item the current universe is effectively 97 stocks rather than the full 100 because of data-source gaps.
+\end{enumerate}
+
+The next steps are therefore straightforward: add strong classical and deep baselines, run structured ablations, improve drawdown control, and replace exploratory score fusion with a cleaner validated execution layer.
+
+\section{Conclusion}
+We presented a PatchTST-plus-graph system for cross-sectional return forecasting in the NIFTY 100. The model integrates temporal patch modeling, static and dynamic stock relations, regime conditioning, and multi-task supervision in a walk-forward evaluation framework. The configured final run shows positive IC, positive Rank IC, statistically significant daily IC, and positive out-of-sample portfolio performance after transaction costs. The broader robustness analysis further suggests that the ranking head contains stronger fixed execution signal than the configured blended portfolio score. At the same time, the system still exhibits high drawdown and high turnover, so the present contribution should be interpreted as a research forecasting framework rather than a deployable trading engine. This makes the work suitable as a platform for the next stage of empirical study: baselines, ablations, and risk-aware portfolio control.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}
