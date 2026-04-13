@@ -31,6 +31,8 @@ features:
   - 20
 model:
   embedding_dim: 128
+  use_graph: true
+  use_regime: true
   patch_sizes:
   - 8
   - 16
@@ -65,6 +67,7 @@ training:
   batch_dates: 8
   fp16: true
   gradient_checkpointing: true
+  use_pretrained_backbone: true
   recency_weighting: true
   recency_half_life_days: 252
   early_stopping_patience: 10

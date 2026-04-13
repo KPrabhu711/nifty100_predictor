@@ -45,7 +45,9 @@ def build_rolling_corr_graph(
     device = returns.device
     n, w = returns.shape
     if n == 0 or w < 2:
-        return _empty_edges(device), torch.empty((0,), dtype=torch.float32, device=device)
+        return _empty_edges(device), torch.empty(
+            (0,), dtype=torch.float32, device=device
+        )
 
     x = returns.float()
     x = x - x.mean(dim=1, keepdim=True)
@@ -74,7 +76,9 @@ def build_rolling_corr_graph(
         edge_w.append(weights.float())
 
     if not edge_src:
-        return _empty_edges(device), torch.empty((0,), dtype=torch.float32, device=device)
+        return _empty_edges(device), torch.empty(
+            (0,), dtype=torch.float32, device=device
+        )
 
     src = torch.cat(edge_src)
     dst = torch.cat(edge_dst)
@@ -94,7 +98,9 @@ def build_embedding_sim_graph(
     device = embeddings.device
     n = embeddings.size(0)
     if n == 0:
-        return _empty_edges(device), torch.empty((0,), dtype=torch.float32, device=device)
+        return _empty_edges(device), torch.empty(
+            (0,), dtype=torch.float32, device=device
+        )
 
     h = embeddings.float()
     h = h / (h.norm(dim=1, keepdim=True) + EPS)
@@ -119,7 +125,9 @@ def build_embedding_sim_graph(
         edge_w.append(weights.float())
 
     if not edge_src:
-        return _empty_edges(device), torch.empty((0,), dtype=torch.float32, device=device)
+        return _empty_edges(device), torch.empty(
+            (0,), dtype=torch.float32, device=device
+        )
 
     src = torch.cat(edge_src)
     dst = torch.cat(edge_dst)
@@ -141,16 +149,35 @@ def build_combined_graph(sector_ids, embeddings, raw_returns, config) -> dict:
 
     sector_ids = sector_ids.to(device)
     n_stocks = int(sector_ids.numel())
+    relation_types = {
+        str(r)
+        for r in getattr(
+            config.model, "relation_types", ["sector", "rolling_corr", "emb_similarity"]
+        )
+    }
 
-    sector_edges = build_sector_graph(sector_ids=sector_ids, n_stocks=n_stocks)
+    if "sector" in relation_types:
+        sector_edges = build_sector_graph(sector_ids=sector_ids, n_stocks=n_stocks)
+    else:
+        sector_edges = _empty_edges(device)
 
-    corr_edges, corr_w = build_rolling_corr_graph(
-        returns=raw_returns.to(device) if raw_returns is not None else torch.zeros((n_stocks, 1), device=device),
-        threshold=float(config.model.corr_threshold),
-        top_k_per_node=15,
-    )
+    if "rolling_corr" in relation_types or "corr" in relation_types:
+        corr_edges, corr_w = build_rolling_corr_graph(
+            returns=raw_returns.to(device)
+            if raw_returns is not None
+            else torch.zeros((n_stocks, 1), device=device),
+            threshold=float(config.model.corr_threshold),
+            top_k_per_node=15,
+        )
+    else:
+        corr_edges = _empty_edges(device)
+        corr_w = torch.empty((0,), dtype=torch.float32, device=device)
 
-    if embeddings is None:
+    if (
+        embeddings is None
+        or "emb_similarity" not in relation_types
+        and "emb_sim" not in relation_types
+    ):
         emb_edges = _empty_edges(device)
         emb_w = torch.empty((0,), dtype=torch.float32, device=device)
     else:

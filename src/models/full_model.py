@@ -4,7 +4,11 @@ import torch
 import torch.nn as nn
 
 from .gnn import MultiRelationalGAT
-from .graph import build_combined_graph, build_embedding_sim_graph, build_rolling_corr_graph
+from .graph import (
+    build_combined_graph,
+    build_embedding_sim_graph,
+    build_rolling_corr_graph,
+)
 from .heads import DirectionHead, RankingHead, ReturnRegressionHead
 from .patchtst import MultiScalePatchTST
 
@@ -18,6 +22,8 @@ class NIFTY100PredictionModel(nn.Module):
         super().__init__()
         self.config = config
         mcfg = config.model
+        self.use_graph = bool(getattr(mcfg, "use_graph", True))
+        self.use_regime = bool(getattr(mcfg, "use_regime", True))
 
         self.temporal_encoder = MultiScalePatchTST(
             seq_len=int(config.features.lookback),
@@ -31,16 +37,23 @@ class NIFTY100PredictionModel(nn.Module):
             gradient_checkpointing=bool(config.training.gradient_checkpointing),
         )
 
-        self.graph_encoder = MultiRelationalGAT(
-            embed_dim=int(mcfg.embedding_dim),
-            n_heads=int(mcfg.n_attention_heads),
-            n_layers=int(mcfg.graph_layers),
-            dropout=float(mcfg.dropout),
-        )
+        if self.use_graph:
+            self.graph_encoder = MultiRelationalGAT(
+                embed_dim=int(mcfg.embedding_dim),
+                n_heads=int(mcfg.n_attention_heads),
+                n_layers=int(mcfg.graph_layers),
+                dropout=float(mcfg.dropout),
+            )
+        else:
+            self.graph_encoder = nn.Identity()
 
         self.expected_regime_dim = int(mcfg.regime_dim)
-        head_in_dim = int(mcfg.embedding_dim) + self.expected_regime_dim
-        self.ret_head = ReturnRegressionHead(in_dim=head_in_dim, dropout=float(mcfg.dropout))
+        head_in_dim = int(mcfg.embedding_dim) + (
+            self.expected_regime_dim if self.use_regime else 0
+        )
+        self.ret_head = ReturnRegressionHead(
+            in_dim=head_in_dim, dropout=float(mcfg.dropout)
+        )
         self.rank_head = RankingHead(in_dim=head_in_dim, dropout=float(mcfg.dropout))
         self.direction_n_classes = int(getattr(mcfg, "direction_n_classes", 2))
         self.dir_head = DirectionHead(
@@ -59,16 +72,18 @@ class NIFTY100PredictionModel(nn.Module):
         temporal_emb = self.temporal_encoder(features)
 
         if graph_dict is None:
-            raise ValueError("graph_dict is required and must include sector relation or sector_ids")
+            raise ValueError(
+                "graph_dict is required and must include sector relation or sector_ids"
+            )
 
-        if "sector_ids" in graph_dict:
+        if self.use_graph and "sector_ids" in graph_dict:
             combined = build_combined_graph(
                 sector_ids=graph_dict["sector_ids"],
                 embeddings=temporal_emb,
                 raw_returns=raw_returns,
                 config=self.config,
             )
-        else:
+        elif self.use_graph:
             combined = dict(graph_dict)
             corr_idx, corr_w = build_rolling_corr_graph(
                 returns=raw_returns,
@@ -82,27 +97,38 @@ class NIFTY100PredictionModel(nn.Module):
             )
             combined["corr"] = (corr_idx, corr_w)
             combined["emb_sim"] = (emb_idx, emb_w)
-
-        graph_emb = self.graph_encoder(temporal_emb, combined)
-
-        if regime.dim() == 1:
-            regime_expand = regime.unsqueeze(0).expand(graph_emb.size(0), -1)
         else:
-            regime_expand = regime.expand(graph_emb.size(0), -1)
+            combined = {}
 
-        regime_expand = regime_expand.to(dtype=graph_emb.dtype, device=graph_emb.device)
-        current_dim = regime_expand.size(-1)
-        if current_dim < self.expected_regime_dim:
-            pad = torch.zeros(
-                (graph_emb.size(0), self.expected_regime_dim - current_dim),
-                dtype=regime_expand.dtype,
-                device=regime_expand.device,
+        graph_emb = (
+            self.graph_encoder(temporal_emb, combined)
+            if self.use_graph
+            else temporal_emb
+        )
+
+        if self.use_regime:
+            if regime.dim() == 1:
+                regime_expand = regime.unsqueeze(0).expand(graph_emb.size(0), -1)
+            else:
+                regime_expand = regime.expand(graph_emb.size(0), -1)
+
+            regime_expand = regime_expand.to(
+                dtype=graph_emb.dtype, device=graph_emb.device
             )
-            regime_expand = torch.cat([regime_expand, pad], dim=-1)
-        elif current_dim > self.expected_regime_dim:
-            regime_expand = regime_expand[:, : self.expected_regime_dim]
+            current_dim = regime_expand.size(-1)
+            if current_dim < self.expected_regime_dim:
+                pad = torch.zeros(
+                    (graph_emb.size(0), self.expected_regime_dim - current_dim),
+                    dtype=regime_expand.dtype,
+                    device=regime_expand.device,
+                )
+                regime_expand = torch.cat([regime_expand, pad], dim=-1)
+            elif current_dim > self.expected_regime_dim:
+                regime_expand = regime_expand[:, : self.expected_regime_dim]
 
-        final_emb = torch.cat([graph_emb, regime_expand], dim=-1)
+            final_emb = torch.cat([graph_emb, regime_expand], dim=-1)
+        else:
+            final_emb = graph_emb
 
         ret_pred = self.ret_head(final_emb)
         rank_score = self.rank_head(final_emb)
