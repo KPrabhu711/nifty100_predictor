@@ -1,0 +1,21 @@
+{
+  "ic_mean": 0.018907467228728294,
+  "ic_std": 0.1523415951019019,
+  "ic_ir": 0.12411230153496818,
+  "rank_ic_mean": 0.014021765012542507,
+  "rank_ic_std": 0.14541275663660558,
+  "rank_ic_ret_mean": 0.015636039942351094,
+  "rank_ic_ret_std": 0.14775563963712002,
+  "score_rank_ic_mean": 0.015636039942351094,
+  "score_rank_ic_std": 0.14775563963712002,
+  "spread_mean": 0.0023555486351304394,
+  "directional_accuracy": 0.37940387052822244,
+  "top_k_precision": 0.5094339622641509,
+  "annualized_return": 0.5790323064494787,
+  "sharpe_ratio": 1.4874167282544588,
+  "sortino_ratio": 2.617190668589863,
+  "max_drawdown": -0.6497693664487222,
+  "hit_ratio": 0.5212264150943396,
+  "annualized_turnover": 83.9801886792453,
+  "calmar_ratio": 0.891135112605871
+}

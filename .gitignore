@@ -44,8 +44,21 @@ results/checkpoints/*
 !results/checkpoints/.gitkeep
 results/metrics/*
 !results/metrics/.gitkeep
+!results/metrics/aggregate_metrics.json
+!results/metrics/final_summary.csv
+!results/metrics/baselines_summary.csv
+!results/metrics/ablations_summary.csv
+!results/metrics/significance_table.csv
+!results/metrics/robustness_dashboard.json
 results/plots/*
 !results/plots/.gitkeep
+!results/plots/ic_over_time.png
+!results/plots/portfolio_cumulative_returns.png
+!results/plots/walkforward_summary.png
+!results/plots/significance_ic_distribution.png
+!results/plots/robustness_topk.png
+!results/plots/baselines_comparison.png
+!results/plots/ablations_comparison.png
 
 # Accidental nested outputs
 scripts/results/
