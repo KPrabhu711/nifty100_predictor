@@ -22,7 +22,7 @@
 \maketitle
 
 \begin{abstract}
-This paper presents a relation-aware return forecasting framework for the NIFTY 100 that combines a multi-scale PatchTST temporal encoder with static and dynamic graph attention, regime conditioning, and portfolio-aligned multi-task learning. The model is designed for cross-sectional stock selection rather than raw price forecasting. Each stock is represented by a 128-day history of engineered market features, encoded by a three-branch PatchTST backbone, refined through sector, rolling-correlation, and embedding-similarity graphs, and optimized jointly for residual return regression, cross-sectional ranking, and directional classification. We evaluate the system with a strict walk-forward protocol over 2015--2024 using transaction costs, overlap-safe aggregation, and post-run significance and robustness analysis. Under the configured portfolio score used in the final saved run, the model achieves an information coefficient of 0.0189, a rank information coefficient of 0.0140, 57.9\% annualized return, and a Sharpe ratio of 1.49 at 10 basis points transaction cost. A fixed-score robustness sweep further shows that direct ranking-head execution can reach 90.9\% annualized return with a Sharpe ratio of 2.05 on the same saved predictions. HAC-adjusted significance testing yields a positive daily IC mean with $p=0.044$ and a positive score-based rank IC with borderline significance. The results support the viability of PatchTST-plus-graph architectures for Indian large-cap cross-sectional forecasting, but the observed drawdown and turnover indicate that the present system should be interpreted as a research forecasting framework rather than a production-ready alpha engine.
+This paper presents a relation-aware return forecasting framework for the NIFTY 100 that combines a multi-scale PatchTST temporal encoder with static and dynamic graph attention, regime conditioning, and portfolio-aligned multi-task learning. The model is designed for cross-sectional stock selection rather than raw price forecasting. Each stock is represented by a 128-day history of engineered market features, encoded by a three-branch PatchTST backbone, refined through sector, rolling-correlation, and embedding-similarity graphs, and optimized jointly for residual return regression, cross-sectional ranking, and directional classification. We evaluate the system with a strict walk-forward protocol over 2015--2024 using transaction costs, overlap-safe aggregation, and post-run significance and robustness analysis. Under the configured portfolio score used in the final saved run, the model achieves an information coefficient of 0.0189, a rank information coefficient of 0.0140, 57.9\% annualized return, and a Sharpe ratio of 1.49 at 10 basis points transaction cost. A fixed-score robustness sweep further shows that direct ranking-head execution can reach 90.9\% annualized return with a Sharpe ratio of 2.05 on the same saved predictions. Cheap baseline comparisons show clear portfolio-level gains over ridge regression and gradient boosting and competitive performance versus a strong tabular MLP. Ablation results demonstrate that pretraining, regime conditioning, and graph-based relational reasoning are all materially important. HAC-adjusted significance testing yields a positive daily IC mean with $p=0.044$ and a positive score-based rank IC with borderline significance. The results support the viability of PatchTST-plus-graph architectures for Indian large-cap cross-sectional forecasting, but the observed drawdown and turnover indicate that the present system should be interpreted as a research forecasting framework rather than a production-ready alpha engine.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -120,6 +120,11 @@ The system uses daily NIFTY 100 constituent data from 2015-01-01 to 2024-12-31, 
 
 We use mixed precision, gradient checkpointing, AdamW, and a 12-epoch masked patch pretraining phase for the reported run. The graph module contains two layers, and training batches are constructed over dates so that all available stocks for a date are processed jointly.
 
+\subsection{Cheap Baselines and Ablation Protocol}
+To provide reviewer-grade evidence without multiplying training cost excessively, we evaluate three cheap baselines and four targeted ablations. The cheap baselines are ridge regression, histogram gradient boosting, and a tabular multilayer perceptron (MLP). For these baselines, each stock-date observation is converted into a 204-dimensional tabular vector consisting of the latest engineered features, rolling means and standard deviations over 5, 20, and 60 days, market regime features, and summary statistics of recent raw returns. Baselines are trained in the same walk-forward folds as the main model and scored using their direct predicted return.
+
+The ablation suite contains: (i) no pretraining, (ii) no ranking loss, (iii) no regime features, and (iv) temporal-only PatchTST without the graph module. These variants reuse the same data pipeline, walk-forward split logic, and metric computation as the full model.
+
 \subsection{Evaluation Metrics}
 We report:
 \begin{itemize}
@@ -159,6 +164,48 @@ Hit ratio & 52.12\% & 52.12\% \\
 \end{table}
 
 At the fold level, performance is mixed but usable: four of seven folds are positive on both Sharpe and score-based Rank IC. The strongest fold reaches Sharpe 4.34, while the weakest folds remain negative. This indicates that the architecture captures real alpha, but the extracted signal is still regime-sensitive and not uniformly reliable across market regimes.
+
+\subsection{Cheap Baselines}
+Table~\ref{tab:baselines} compares the configured saved run against three cheap baselines. Ridge regression and histogram gradient boosting are clearly weaker in both risk-adjusted and absolute return terms. The tabular MLP baseline is a serious competitor: it exceeds the configured saved run on Sharpe, annualized return, IC, and Rank IC. This result is important rather than inconvenient. It suggests that a large fraction of the NIFTY signal is already recoverable from carefully engineered tabular features, and therefore the main value of the proposed architecture lies in providing a stronger temporal-relational research framework and in enabling more expressive ablation and execution studies.
+
+\begin{table*}[t]
+\centering
+\caption{Cheap baseline comparison. Baselines are single-score models and are evaluated using their direct predicted return as the execution score. The proposed model is shown both with its configured saved-run score and with the strongest fixed ranking-head execution score for context.}
+\label{tab:baselines}
+\footnotesize
+\begin{tabular}{llrrrrr}
+\toprule
+Method & Score used & IC & Rank IC & Ann. Return & Sharpe & Max DD \\
+\midrule
+Ridge & predicted return & 0.0137 & 0.0078 & 6.78\% & 0.36 & -63.66\% \\
+HistGradientBoosting & predicted return & 0.0282 & 0.0156 & -0.74\% & 0.15 & -67.32\% \\
+MLP & predicted return & 0.0290 & 0.0225 & 60.05\% & 1.65 & -45.57\% \\
+Proposed (configured) & alpha\_score & 0.0189 & 0.0140 & 57.90\% & 1.49 & -64.98\% \\
+Proposed (robustness best) & rank head & 0.0189 & 0.0140 & 90.93\% & 2.05 & -65.27\% \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Ablation Study}
+Table~\ref{tab:ablations} reports a compact but informative ablation suite. Three conclusions are immediate. First, removing pretraining collapses the system: return turns negative, Sharpe approaches zero, and IC becomes negative. Second, removing regime features also destroys practical performance, indicating that market-wide context is essential. Third, removing the graph module leaves a positive IC but almost eliminates portfolio value, suggesting that temporal features alone are insufficient for strong stock selection. The no-ranking-loss variant is more subtle: it retains positive portfolio performance, but the ranking-head signal degrades and the model becomes less interpretable as an explicit ranking system.
+
+\begin{table*}[t]
+\centering
+\caption{Targeted ablation study. All variants use the same walk-forward folds and evaluation pipeline as the configured full model.}
+\label{tab:ablations}
+\footnotesize
+\begin{tabular}{lrrrrrr}
+\toprule
+Variant & IC & Rank IC & Score Rank IC & Ann. Return & Sharpe & Max DD \\
+\midrule
+Full model & 0.0189 & 0.0140 & 0.0156 & 57.90\% & 1.49 & -64.98\% \\
+No pretraining & -0.0026 & 0.0065 & 0.0014 & -3.88\% & 0.06 & -74.18\% \\
+No regime & 0.0085 & 0.0069 & 0.0085 & -24.91\% & -0.56 & -81.43\% \\
+Temporal only (no graph) & 0.0190 & 0.0187 & 0.0191 & 0.67\% & 0.19 & -78.06\% \\
+No ranking loss & 0.0220 & -0.0113 & 0.0201 & 65.88\% & 1.48 & -63.06\% \\
+\bottomrule
+\end{tabular}
+\end{table*}
 
 \subsection{Significance}
 Table~\ref{tab:significance} reports HAC-adjusted significance estimates from the saved daily metrics. Daily IC is statistically positive at the 5\% level ($p=0.044$). Rank IC and score Rank IC are positive with borderline significance ($p\approx 0.08$), and the top--bottom spread is similarly borderline. These values are consistent with a positive but noisy financial signal rather than an overfit or deterministic predictor.
@@ -238,7 +285,7 @@ Figure~\ref{fig:topk} shows the sensitivity of portfolio performance to top-$k$ 
 \end{figure}
 
 \section{Discussion}
-The results support four conclusions.
+The results support five conclusions.
 
 First, the combination of multi-scale PatchTST and relational graph learning is effective for Indian large-cap stock selection. Positive IC, positive Rank IC, and positive top-$k$ precision indicate that the model is extracting usable cross-sectional information.
 
@@ -246,21 +293,23 @@ Second, the system is stronger as a ranking engine than as a direction classifie
 
 Third, portfolio-aware evaluation materially changes the interpretation of model quality. The robustness study shows that the strongest fixed execution score is not the same as the configured blended score used in the final run. This underlines the importance of separating head-level forecasting quality from execution-layer design and of reporting both configured and robustness-best settings clearly.
 
-Fourth, the major practical limitation is not raw signal strength but risk concentration. The model can generate attractive returns, but those returns come with high turnover and high drawdown. A drawdown around 65\% is a serious practical red flag. Any future deployment-oriented version would need explicit drawdown control such as volatility targeting, score-thresholded exposure, sector and beta neutrality, position caps, and stronger turnover regularization.
+Fourth, the main empirical lesson from the new baseline and ablation suite is that the proposed architecture is supported but not unambiguously dominant. The full model clearly outperforms weak linear baselines and materially outperforms gradient boosting on portfolio metrics, while degrading sharply when pretraining, regime context, or graph structure is removed. However, a strong tabular MLP remains highly competitive. This is scientifically useful: it means the present system should be positioned as an extensible temporal-relational research framework rather than as a universally superior model in all settings.
+
+Fifth, the major practical limitation is not raw signal strength but risk concentration. The model can generate attractive returns, but those returns come with high turnover and high drawdown. A drawdown around 65\% is a serious practical red flag. Any future deployment-oriented version would need explicit drawdown control such as volatility targeting, score-thresholded exposure, sector and beta neutrality, position caps, and stronger turnover regularization.
 
 \section{Limitations and Future Work}
-This draft has several limitations that must be addressed before journal-grade submission:
+This draft still has several limitations that should be addressed before journal-grade submission:
 \begin{enumerate}
-    \item no full baseline suite (linear, tree-based, PatchTST-only, graph ablations) is reported yet;
+    \item only a compact baseline set is reported; stronger sequence baselines such as LSTM- or transformer-only variants are still missing;
     \item portfolio drawdown remains too high for a convincing deployment story;
     \item the direction head underperforms and should either be redesigned or down-weighted further;
     \item the current universe is effectively 97 stocks rather than the full 100 because of data-source gaps.
 \end{enumerate}
 
-The next steps are therefore straightforward: add strong classical and deep baselines, run structured ablations, improve drawdown control, and replace exploratory score fusion with a cleaner validated execution layer.
+The next steps are therefore straightforward: add stronger sequence baselines, expand graph-specific ablations, improve drawdown control, and replace exploratory score fusion with a cleaner validated execution layer.
 
 \section{Conclusion}
-We presented a PatchTST-plus-graph system for cross-sectional return forecasting in the NIFTY 100. The model integrates temporal patch modeling, static and dynamic stock relations, regime conditioning, and multi-task supervision in a walk-forward evaluation framework. The configured final run shows positive IC, positive Rank IC, statistically significant daily IC, and positive out-of-sample portfolio performance after transaction costs. The broader robustness analysis further suggests that the ranking head contains stronger fixed execution signal than the configured blended portfolio score. At the same time, the system still exhibits high drawdown and high turnover, so the present contribution should be interpreted as a research forecasting framework rather than a deployable trading engine. This makes the work suitable as a platform for the next stage of empirical study: baselines, ablations, and risk-aware portfolio control.
+We presented a PatchTST-plus-graph system for cross-sectional return forecasting in the NIFTY 100. The model integrates temporal patch modeling, static and dynamic stock relations, regime conditioning, and multi-task supervision in a walk-forward evaluation framework. The configured final run shows positive IC, positive Rank IC, statistically significant daily IC, and positive out-of-sample portfolio performance after transaction costs. Cheap baseline comparisons show that the framework is stronger than a simple linear baseline, stronger than gradient boosting on portfolio metrics, and competitive with a strong tabular MLP, while targeted ablations show that pretraining, regime conditioning, and graph structure are all materially important. At the same time, the system still exhibits high drawdown and high turnover, so the present contribution should be interpreted as a research forecasting framework rather than a deployable trading engine. This makes the work suitable as a platform for the next stage of empirical study: broader baselines, richer ablations, and risk-aware portfolio control.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}
