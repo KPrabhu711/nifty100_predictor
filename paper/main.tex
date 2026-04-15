@@ -114,6 +114,16 @@ where $\Delta_{\tau}$ is the distance to the most recent training date and $h=25
 \subsection{Execution Score}
 The repository implements an exploratory validation-tuned blended alpha score of the form recommended in the project design document. The configured run reported in this paper uses that blended score as its primary execution signal. However, a fixed-score robustness sweep on the saved predictions shows that the ranking head alone can produce a stronger post-hoc portfolio. To avoid overstating the contribution of exploratory score selection, we present the configured execution result as the primary portfolio outcome and treat the fixed rank-head result as a robustness finding.
 
+\subsection{System Architecture}
+Figure~\ref{fig:architecture} shows the end-to-end system architecture used in the repository, from market data ingestion and feature generation through temporal-relational forecasting, walk-forward training, and portfolio-level evaluation.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{architecture_tikz.pdf}
+\caption{End-to-end architecture of the implemented NIFTY 100 cross-sectional forecasting system.}
+\label{fig:architecture}
+\end{figure*}
+
 \section{Experimental Design}
 \subsection{Data and Training Protocol}
 The system uses daily NIFTY 100 constituent data from 2015-01-01 to 2024-12-31, plus NIFTY 100 index and India VIX context series. The walk-forward setup follows the design specification: 5 years train, 1 year validation, 1 year test, rolling every 6 months. This yields seven folds.
