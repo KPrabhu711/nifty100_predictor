@@ -15,26 +15,36 @@
 \title{Portfolio-Aligned PatchTST with Dynamic Relational Graphs for Cross-Sectional Return Forecasting in the NIFTY 100}
 
 \author{
-\IEEEauthorblockN{Karthik Prabhu}
-\IEEEauthorblockA{Department of Computer Science and Engineering\\
+\parbox{0.98\textwidth}{\centering
+\begin{tabular}{@{}c@{\hspace{0.01\textwidth}}c@{}}
+\parbox[t]{0.47\textwidth}{\centering
+Karthik Prabhu\\
+Department of Computer Science and Engineering\\
 PES University, Bengaluru, India\\
 karthikprabhu711@gmail.com}
-\and
-\IEEEauthorblockN{Arulmozhi Varma}
-\IEEEauthorblockA{Department of Computer Science and Engineering\\
+&
+\parbox[t]{0.47\textwidth}{\centering
+Arulmozhi Varma\\
+Department of Computer Science and Engineering\\
 PES University, Bengaluru, India\\
 arul.ks2004@gmail.com}
-\and
-\IEEEauthorblockN{Karthik S Jasti}
-\IEEEauthorblockA{Department of Computer Science and Engineering\\
+\end{tabular}
+\\[1.3em]
+\begin{tabular}{@{}c@{\hspace{0.01\textwidth}}c@{}}
+\parbox[t]{0.47\textwidth}{\centering
+Karthik S Jasti\\
+Department of Computer Science and Engineering\\
 PES University, Bengaluru, India\\
 karthikchess2005@gmail.com}
-\and
-\IEEEauthorblockN{Dr. Ashwini M. Joshi}
-\IEEEauthorblockA{Associate Professor\\
+&
+\parbox[t]{0.47\textwidth}{\centering
+Dr. Ashwini M. Joshi\\
+Associate Professor\\
 Department of Computer Science and Engineering\\
 PES University, Bengaluru, India\\
 ashwinimjoshi@pes.edu}
+\end{tabular}
+}
 }
 
 \begin{document}
@@ -137,7 +147,7 @@ The configured execution score is a validation-tuned blend of return, ranking, a
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=\textwidth]{arch_diagram.png}
+\includegraphics[width=\textwidth]{Final_Diagram.jpeg}
 \caption{End-to-end architecture of the NIFTY 100 cross-sectional forecasting system. The pipeline downloads market data, builds stock and regime features, applies cross-sectional normalization, encodes each stock with multi-scale PatchTST, refines embeddings with multi-relational graph attention, predicts return/rank/direction outputs, and evaluates a transaction-cost-aware long--short portfolio.}
 \label{fig:architecture}
 \end{figure*}
@@ -258,6 +268,7 @@ No ranking loss & 0.0220 & -0.0113 & 0.0201 & 65.88\% & 1.48 & -63.06\% \\
 \label{fig:ablation_plot}
 \end{figure}
 
+\vspace{-1.2em}
 \subsection{Significance and Robustness}
 Table~\ref{tab:significance} reports statistical tests on daily metrics. IC is statistically positive at the 5\% level with HAC-adjusted $p=0.0437$. Rank IC, score Rank IC, and top--bottom spread are positive but only borderline significant. This evidence supports a weak but positive signal, which is a realistic finding for daily equity forecasting.
 
