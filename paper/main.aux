@@ -2,68 +2,115 @@
 \providecommand\hyper@newdestlabel[2]{}
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{markowitz1952portfolio,sharpe1966mutual}
+\citation{lopezdeprado2018advances}
 \citation{feng2019temporal}
 \citation{li2024master}
 \citation{nie2023patchtst}
-\citation{feng2019temporal}
-\citation{li2024master}
-\citation{nie2023patchtst}
-\citation{zhang2022listwise}
-\citation{gorduza2024analyst}
 \@writefile{toc}{\contentsline {section}{\numberline {I}Introduction}{1}{section.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {II}Related Work}{1}{section.2}\protected@file@percent }
-\citation{li2024master}
+\citation{engle1982autoregressive,bollerslev1986generalized}
+\citation{krauss2017deep}
+\citation{fischer2018deep}
+\citation{gu2020empirical}
+\citation{vaswani2017attention}
+\citation{lim2021temporal}
+\citation{nie2023patchtst}
 \citation{feng2019temporal}
+\citation{li2024master}
+\citation{velickovic2018gat,kipf2017semi}
 \citation{zhang2022listwise}
 \citation{gorduza2024analyst}
-\@writefile{toc}{\contentsline {section}{\numberline {III}Problem Setup}{2}{section.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-A}}Label Construction and Leakage Control}{2}{subsection.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {IV}Methodology}{2}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-A}}Feature Engineering and Normalization}{2}{subsection.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-B}}Temporal Encoder}{2}{subsection.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}Relational Graph Layer}{2}{subsection.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-D}}Prediction Heads and Training Objective}{2}{subsection.4.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-E}}Execution Score}{2}{subsection.4.5}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces Contextual comparison with representative published systems. Results are not perfectly comparable across markets, rebalancing schemes, and cost assumptions; they are included to position the present result relative to related literature.}}{3}{table.1}\protected@file@percent }
-\newlabel{tab:related_comparison}{{I}{3}{Contextual comparison with representative published systems. Results are not perfectly comparable across markets, rebalancing schemes, and cost assumptions; they are included to position the present result relative to related literature}{table.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-F}}System Architecture}{3}{subsection.4.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {V}Experimental Design}{3}{section.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-A}}Data and Training Protocol}{3}{subsection.5.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-B}}Cheap Baselines and Ablation Protocol}{3}{subsection.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-C}}Evaluation Metrics}{3}{subsection.5.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {VI}Results}{3}{section.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-A}}Main Cross-Sectional Performance}{3}{subsection.6.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-B}}Cheap Baselines}{3}{subsection.6.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces End-to-end architecture of the implemented NIFTY 100 cross-sectional forecasting system.}}{4}{figure.1}\protected@file@percent }
-\newlabel{fig:architecture}{{1}{4}{End-to-end architecture of the implemented NIFTY 100 cross-sectional forecasting system}{figure.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-C}}Ablation Study}{4}{subsection.6.3}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces Main out-of-sample results. The left column reports the configured saved run using the portfolio score active during the final walk-forward evaluation. The right column reports the strongest fixed-score robustness result from the saved predictions, which uses the ranking head directly for execution.}}{5}{table.2}\protected@file@percent }
-\newlabel{tab:main_results}{{II}{5}{Main out-of-sample results. The left column reports the configured saved run using the portfolio score active during the final walk-forward evaluation. The right column reports the strongest fixed-score robustness result from the saved predictions, which uses the ranking head directly for execution}{table.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Daily IC and Rank IC over the aggregated out-of-sample period.}}{5}{figure.2}\protected@file@percent }
-\newlabel{fig:ic}{{2}{5}{Daily IC and Rank IC over the aggregated out-of-sample period}{figure.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-D}}Significance}{5}{subsection.6.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-E}}Robustness}{5}{subsection.6.5}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Distribution of daily IC values from the final run.}}{5}{figure.3}\protected@file@percent }
-\newlabel{fig:icdist}{{3}{5}{Distribution of daily IC values from the final run}{figure.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Top-$k$ sensitivity from the robustness analysis.}}{5}{figure.4}\protected@file@percent }
-\newlabel{fig:topk}{{4}{5}{Top-$k$ sensitivity from the robustness analysis}{figure.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {VII}Discussion}{5}{section.7}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Cheap baseline comparison. Baselines are single-score models and are evaluated using their direct predicted return as the execution score. The proposed model is shown both with its configured saved-run score and with the strongest fixed ranking-head execution score for context.}}{6}{table.3}\protected@file@percent }
-\newlabel{tab:baselines}{{III}{6}{Cheap baseline comparison. Baselines are single-score models and are evaluated using their direct predicted return as the execution score. The proposed model is shown both with its configured saved-run score and with the strongest fixed ranking-head execution score for context}{table.3}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces Targeted ablation study. All variants use the same walk-forward folds and evaluation pipeline as the configured full model.}}{6}{table.4}\protected@file@percent }
-\newlabel{tab:ablations}{{IV}{6}{Targeted ablation study. All variants use the same walk-forward folds and evaluation pipeline as the configured full model}{table.4}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {V}{\ignorespaces Statistical significance of key daily metrics. HAC uses max lag 5.}}{6}{table.5}\protected@file@percent }
-\newlabel{tab:significance}{{V}{6}{Statistical significance of key daily metrics. HAC uses max lag 5}{table.5}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {VIII}Limitations and Future Work}{6}{section.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {IX}Conclusion}{6}{section.9}\protected@file@percent }
+\citation{engle1982autoregressive}
+\citation{krauss2017deep}
+\citation{fischer2018deep}
+\citation{feng2019temporal}
+\citation{gu2020empirical}
+\citation{lim2021temporal}
+\citation{zhang2022listwise}
+\citation{nie2023patchtst}
+\citation{li2024master}
+\citation{gorduza2024analyst}
+\citation{nie2023patchtst}
+\citation{vaswani2017attention}
+\@writefile{toc}{\contentsline {section}{\numberline {II}Literature Review / Related Work}{2}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {III}Proposed Architecture / Methodology}{2}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-A}}Problem Definition}{2}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-B}}Feature Engineering and Normalization}{2}{subsection.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-C}}Temporal Patch Encoder}{2}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-D}}Multi-Relational Graph Reasoning}{2}{subsection.3.4}\protected@file@percent }
+\citation{velickovic2018gat}
+\citation{huber1964robust}
+\citation{lin2017focal}
+\@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces Summary of ten representative related studies and their relevance to this work.}}{3}{table.1}\protected@file@percent }
+\newlabel{tab:related_work}{{I}{3}{Summary of ten representative related studies and their relevance to this work}{table.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-E}}Prediction Heads and Loss Function}{3}{subsection.3.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-F}}Portfolio Execution Rule}{3}{subsection.3.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {IV}Implementation}{3}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-A}}Data Source and Universe}{3}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-B}}Pipeline Scripts}{3}{subsection.4.2}\protected@file@percent }
+\citation{kingma2015adam,loshchilov2019decoupled}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces End-to-end architecture of the NIFTY 100 cross-sectional forecasting system. The pipeline downloads market data, builds stock and regime features, applies cross-sectional normalization, encodes each stock with multi-scale PatchTST, refines embeddings with multi-relational graph attention, predicts return/rank/direction outputs, and evaluates a transaction-cost-aware long--short portfolio.}}{4}{figure.1}\protected@file@percent }
+\newlabel{fig:architecture}{{1}{4}{End-to-end architecture of the NIFTY 100 cross-sectional forecasting system. The pipeline downloads market data, builds stock and regime features, applies cross-sectional normalization, encodes each stock with multi-scale PatchTST, refines embeddings with multi-relational graph attention, predicts return/rank/direction outputs, and evaluates a transaction-cost-aware long--short portfolio}{figure.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}Training Configuration}{4}{subsection.4.3}\protected@file@percent }
+\citation{sharpe1966mutual}
+\citation{neweywest1987simple,efron1993introduction}
+\citation{hoerl1970ridge}
+\citation{friedman2001greedy}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-D}}Walk-Forward Evaluation}{5}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-E}}Baselines and Ablations}{5}{subsection.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {V}Results \& Discussion}{5}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-A}}Main Out-of-Sample Performance}{5}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-B}}Baseline Comparison}{5}{subsection.5.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces Main out-of-sample results. The configured run uses the saved blended execution score. The robustness result uses the fixed ranking-head score on the same saved predictions.}}{5}{table.2}\protected@file@percent }
+\newlabel{tab:main_results}{{II}{5}{Main out-of-sample results. The configured run uses the saved blended execution score. The robustness result uses the fixed ranking-head score on the same saved predictions}{table.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Cumulative return of the configured portfolio compared with the NIFTY 100 benchmark series used by the evaluation script.}}{5}{figure.2}\protected@file@percent }
+\newlabel{fig:portfolio_returns}{{2}{5}{Cumulative return of the configured portfolio compared with the NIFTY 100 benchmark series used by the evaluation script}{figure.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-C}}Ablation Study}{5}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-D}}Significance and Robustness}{5}{subsection.5.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Baseline comparison under the shared walk-forward evaluation protocol. Baselines are evaluated using their direct predicted return as the execution score.}}{6}{table.3}\protected@file@percent }
+\newlabel{tab:baselines}{{III}{6}{Baseline comparison under the shared walk-forward evaluation protocol. Baselines are evaluated using their direct predicted return as the execution score}{table.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Daily IC and Rank IC over the aggregated out-of-sample period. The rolling averages show that signal strength varies substantially across market regimes.}}{6}{figure.3}\protected@file@percent }
+\newlabel{fig:ic_time}{{3}{6}{Daily IC and Rank IC over the aggregated out-of-sample period. The rolling averages show that signal strength varies substantially across market regimes}{figure.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces Targeted ablation study. All variants use the same data pipeline, walk-forward folds, and evaluation logic as the configured full model.}}{6}{table.4}\protected@file@percent }
+\newlabel{tab:ablations}{{IV}{6}{Targeted ablation study. All variants use the same data pipeline, walk-forward folds, and evaluation logic as the configured full model}{table.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Distribution of daily IC values. The mean is positive but daily dispersion is large, which explains the modest statistical strength.}}{6}{figure.5}\protected@file@percent }
+\newlabel{fig:ic_dist}{{5}{6}{Distribution of daily IC values. The mean is positive but daily dispersion is large, which explains the modest statistical strength}{figure.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Ablation comparison generated from the saved metrics. The graph module, regime context, and pretraining materially change portfolio behavior.}}{6}{figure.4}\protected@file@percent }
+\newlabel{fig:ablation_plot}{{4}{6}{Ablation comparison generated from the saved metrics. The graph module, regime context, and pretraining materially change portfolio behavior}{figure.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {V}{\ignorespaces Statistical significance of key daily metrics. HAC uses max lag 5 and confidence intervals are bootstrap estimates.}}{6}{table.5}\protected@file@percent }
+\newlabel{tab:significance}{{V}{6}{Statistical significance of key daily metrics. HAC uses max lag 5 and confidence intervals are bootstrap estimates}{table.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {VI}{\ignorespaces Selected robustness slices from the configured saved run. Cost sensitivity uses top-$10$ weekly long--short portfolios with the configured score. Rebalance sensitivity changes only the rebalance frequency. Yearly rows use the configured score within each calendar year.}}{6}{table.6}\protected@file@percent }
+\newlabel{tab:robustness}{{VI}{6}{Selected robustness slices from the configured saved run. Cost sensitivity uses top-$10$ weekly long--short portfolios with the configured score. Rebalance sensitivity changes only the rebalance frequency. Yearly rows use the configured score within each calendar year}{table.6}{}}
 \bibstyle{IEEEtran}
 \bibdata{references}
-\bibcite{feng2019temporal}{1}
-\bibcite{li2024master}{2}
-\bibcite{nie2023patchtst}{3}
-\bibcite{zhang2022listwise}{4}
-\bibcite{gorduza2024analyst}{5}
-\@writefile{lot}{\contentsline {table}{\numberline {VI}{\ignorespaces Selected robustness slices from the configured saved run. Cost sensitivity uses the configured score, top-$10$, and varying transaction costs. Rebalance sensitivity uses the configured score with different rebalance frequencies. Yearly results use the configured score and the same execution rule within each calendar year.}}{7}{table.6}\protected@file@percent }
-\newlabel{tab:robustness}{{VI}{7}{Selected robustness slices from the configured saved run. Cost sensitivity uses the configured score, top-$10$, and varying transaction costs. Rebalance sensitivity uses the configured score with different rebalance frequencies. Yearly results use the configured score and the same execution rule within each calendar year}{table.6}{}}
-\@writefile{toc}{\contentsline {section}{References}{7}{section*.1}\protected@file@percent }
-\gdef \@abspage@last{7}
+\bibcite{markowitz1952portfolio}{1}
+\bibcite{sharpe1966mutual}{2}
+\bibcite{lopezdeprado2018advances}{3}
+\bibcite{feng2019temporal}{4}
+\bibcite{li2024master}{5}
+\bibcite{nie2023patchtst}{6}
+\bibcite{engle1982autoregressive}{7}
+\bibcite{bollerslev1986generalized}{8}
+\bibcite{krauss2017deep}{9}
+\bibcite{fischer2018deep}{10}
+\bibcite{gu2020empirical}{11}
+\bibcite{vaswani2017attention}{12}
+\bibcite{lim2021temporal}{13}
+\bibcite{velickovic2018gat}{14}
+\bibcite{kipf2017semi}{15}
+\bibcite{zhang2022listwise}{16}
+\bibcite{gorduza2024analyst}{17}
+\bibcite{huber1964robust}{18}
+\bibcite{lin2017focal}{19}
+\bibcite{kingma2015adam}{20}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Top-$k$ robustness sweep. The ranking-head portfolio peaks at $k=10$, while wider portfolios reduce concentration only partially.}}{7}{figure.6}\protected@file@percent }
+\newlabel{fig:topk}{{6}{7}{Top-$k$ robustness sweep. The ranking-head portfolio peaks at $k=10$, while wider portfolios reduce concentration only partially}{figure.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {VI}Conclusion}{7}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {VII}Future Work}{7}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{References}{7}{section*.2}\protected@file@percent }
+\bibcite{loshchilov2019decoupled}{21}
+\bibcite{neweywest1987simple}{22}
+\bibcite{efron1993introduction}{23}
+\bibcite{hoerl1970ridge}{24}
+\bibcite{friedman2001greedy}{25}
+\gdef \@abspage@last{8}
